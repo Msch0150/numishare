@@ -146,8 +146,11 @@
 			<xsl:copy-of select="$id-var/*"/>
 			<xsl:copy-of select="$region-var/*"/>
 
-			<xsl:if test="descendant::nuds:findspotDesc[contains(@xlink:href, 'coinhoards.org')]">
+			<xsl:if test="descendant::nuds:findspotDesc[contains(@xlink:href, 'coinhoards.org') or contains(@xlink:href, 'numismatics.org')]">
 				<xsl:copy-of select="document(concat(descendant::nuds:findspotDesc/@xlink:href, '.rdf'))/rdf:RDF/*"/>
+			</xsl:if>
+			<xsl:if test="descendant::nuds:hoard[contains(@xlink:href, 'coinhoards.org') or contains(@xlink:href, 'numismatics.org')]">
+				<xsl:copy-of select="document(concat(descendant::nuds:hoard/@xlink:href, '.rdf'))/rdf:RDF/*"/>
 			</xsl:if>
 		</rdf:RDF>
 	</xsl:variable>
@@ -164,17 +167,24 @@
 				<type>FeatureCollection</type>
 				<features>
 					<_array>
+						<!-- mints: only call template from NUDS Group for unique URIs -->
+						<xsl:apply-templates select="$nudsGroup/descendant::nuds:geogname[@xlink:role = 'mint' or @xlink:role = 'productionPlace'][string(@xlink:href) and not(preceding::*[@xlink:role = 'mint' or @xlink:role = 'productionPlace']/@xlink:href = @xlink:href)]"/>
+						
+						<!-- findspots -->
 						<xsl:apply-templates
-							select="descendant::nuds:geogname[@xlink:role = 'findspot'][string(@xlink:href)] | descendant::nuds:findspotDesc[contains(@xlink:href, 'coinhoards.org') or contains(@xlink:href, 'nomisma.org')] | $nudsGroup/descendant::nuds:geogname[@xlink:role = 'mint'][string(@xlink:href)]"/>
+							select="descendant::nuds:geogname[@xlink:role = 'findspot'][string(@xlink:href)] | descendant::nuds:findspotDesc[contains(@xlink:href, 'coinhoards.org') or contains(@xlink:href, 'numismatics.org')] | descendant::nuds:hoard[contains(@xlink:href, 'coinhoards.org') or contains(@xlink:href, 'numismatics.org')]"/>
+
+						<!-- issuePlace -->
+						<xsl:apply-templates select="$nudsGroup/descendant::nuds:geogname[@xlink:role = 'issuePlace'][string(@xlink:href) and not(preceding::*[@xlink:role = 'issuePlace']/@xlink:href = @xlink:href)]"/>
 
 						<!-- if there's no linkable mint look for a region -->
 						<xsl:if
-							test="not($nudsGroup/descendant::nuds:geogname[@xlink:role = 'mint']) or $nudsGroup/descendant::nuds:geogname[@xlink:role = 'mint'][not(@xlink:href)]">
+							test="not($nudsGroup/descendant::nuds:geogname[@xlink:role = 'mint' or @xlink:role = 'productionPlace']) or $nudsGroup/descendant::nuds:geogname[@xlink:role = 'mint' or @xlink:role = 'productionPlace'][not(@xlink:href)]">
 							<xsl:apply-templates select="$nudsGroup//descendant::nuds:geogname[@xlink:role = 'region'][string(@xlink:href)]"/>
 						</xsl:if>
 
 						<!-- if there's a linkable mint, look to see if it has coordinates, if not, look to see if its parent region has coordinates -->
-						<xsl:for-each select="$nudsGroup/descendant::nuds:geogname[@xlink:role = 'mint'][contains(@xlink:href, 'nomisma.org')]">
+						<xsl:for-each select="$nudsGroup/descendant::nuds:geogname[@xlink:role = 'mint' or @xlink:role = 'productionPlace'][contains(@xlink:href, 'nomisma.org')]">
 							<xsl:variable name="mintURI" select="@xlink:href"/>
 
 							<xsl:if test="not($rdf//nmo:Mint[@rdf:about = $mintURI]/geo:location)">
@@ -213,25 +223,32 @@
 			<xsl:with-param name="uri" select="@xlink:href"/>
 			<xsl:with-param name="type">
 				<xsl:choose>
-					<xsl:when test="@xlink:role = 'mint' or @xlink:role = 'region'">mint</xsl:when>
+					<xsl:when test="@xlink:role = 'mint' or @xlink:role = 'productionPlace' or @xlink:role = 'region'">mint</xsl:when>
+					<xsl:when test="@xlink:role = 'issuePlace'">issuePlace</xsl:when>
 					<xsl:when test="@xlink:role = 'findspot'">findspot</xsl:when>
 				</xsl:choose>
 			</xsl:with-param>
 			<xsl:with-param name="label">
 				<xsl:choose>
-					<xsl:when test="@xlink:role = 'mint' or @xlink:role = 'region'">
-						<xsl:value-of select="numishare:getNomismaLabel($rdf/*[@rdf:about = $uri], $lang)"/>
+					<xsl:when test="contains(@xlink:href, 'geonames.org')">
+						<xsl:value-of select="."/>
 					</xsl:when>
 					<xsl:otherwise>
-						<xsl:value-of select="."/>
+						<xsl:choose>
+							<xsl:when test="@xlink:role = 'mint' or @xlink:role = 'productionPlace' or @xlink:role = 'region'">
+								<xsl:value-of select="numishare:getNomismaLabel($rdf/*[@rdf:about = $uri], $lang)"/>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:value-of select="."/>
+							</xsl:otherwise>
+						</xsl:choose>
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:with-param>
-
 		</xsl:call-template>
 	</xsl:template>
 
-	<xsl:template match="nuds:findspotDesc">
+	<xsl:template match="nuds:findspotDesc | nuds:hoard">
 		<xsl:variable name="uri" select="@xlink:href"/>
 
 		<xsl:call-template name="generateFeature">

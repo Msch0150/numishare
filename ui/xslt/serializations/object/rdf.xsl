@@ -8,7 +8,7 @@
 	xmlns:crmsci="http://www.ics.forth.gr/isl/CRMsci/" xmlns:crmgeo="http://www.ics.forth.gr/isl/CRMgeo/"
 	xmlns:crmarchaeo="http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/" xmlns:relations="http://pelagios.github.io/vocab/relations#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:nmo="http://nomisma.org/ontology#"
-	xmlns:crm="http://www.cidoc-crm.org/cidoc-crm/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:svcs="http://rdfs.org/sioc/services#"
+	xmlns:crm="http://www.cidoc-crm.org/cidoc-crm/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:svcs="http://rdfs.org/sioc/services#" xmlns:la="https://linked.art/ns/terms/"
 	xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:numishare="https://github.com/ewg118/numishare" exclude-result-prefixes="xs xsl nuds nh xlink gml numishare"
 	version="2.0">
 	<xsl:include href="rdf-templates.xsl"/>
@@ -92,7 +92,7 @@
 			xmlns:nmo="http://nomisma.org/ontology#" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:svcs="http://rdfs.org/sioc/services#"
 			xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:un="http://www.owl-ontologies.com/Ontology1181490123.owl#"
 			xmlns:crmsci="http://www.ics.forth.gr/isl/CRMsci/" xmlns:crmgeo="http://www.ics.forth.gr/isl/CRMgeo/"
-			xmlns:crmarchaeo="http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/">
+			xmlns:crmarchaeo="http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/" xmlns:la="https://linked.art/ns/terms/">
 
 			<xsl:if test="$model = 'pelagios'">
 				<xsl:variable name="id-param">
@@ -110,8 +110,11 @@
 				<xsl:variable name="rdf_url" select="concat('http://nomisma.org/apis/getRdf?identifiers=', encode-for-uri($id-param))"/>
 				<xsl:copy-of select="document($rdf_url)/rdf:RDF/*"/>
 
-				<xsl:if test="descendant::nuds:findspotDesc[contains(@xlink:href, 'coinhoards.org')]">
+				<xsl:if test="descendant::nuds:findspotDesc[contains(@xlink:href, 'coinhoards.org') or contains(@xlink:href, 'numismatics.org')]">
 					<xsl:copy-of select="document(concat(descendant::nuds:findspotDesc/@xlink:href, '.rdf'))/rdf:RDF/*"/>
+				</xsl:if>
+				<xsl:if test="descendant::nuds:hoard[contains(@xlink:href, 'coinhoards.org') or contains(@xlink:href, 'numismatics.org')]">
+					<xsl:copy-of select="document(concat(descendant::nuds:hoard/@xlink:href, '.rdf'))/rdf:RDF/*"/>
 				</xsl:if>
 			</xsl:if>
 		</rdf:RDF>

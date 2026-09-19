@@ -61,15 +61,40 @@
 
 				<!-- config variables -->
 				<xsl:variable name="solr-url" select="concat(/config/solr_published, 'select/')"/>
-				<xsl:variable name="facets" select="concat('&amp;facet.field=', string-join(/config/facets/facet, '&amp;facet.field='))"/>
+				<xsl:variable name="facets">
+					<xsl:text>&amp;facet.field=</xsl:text>
+					<xsl:value-of select="string-join(/config/facets/facet, '&amp;facet.field=')"/>
+					<xsl:if test="count(/config/positions/position) &gt; 0">
+						<xsl:for-each select="/config/positions/position">
+							<xsl:choose>
+								<xsl:when test="@side='both'">
+									<xsl:value-of select="concat('&amp;facet.field=symbol_obv_', @value, '_facet')"/>
+									<xsl:value-of select="concat('&amp;facet.field=symbol_rev_', @value, '_facet')"/>
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:value-of select="concat('&amp;facet.field=symbol_', @side, '_', @value, '_facet')"/>
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:for-each>
+					</xsl:if>
+					<!-- insert the queryable date field as a facet in order to control the appearance of the date range widget in the UI -->
+					<xsl:choose>
+						<xsl:when test="/config/collection_type = 'hoard'">
+							<xsl:text>&amp;facet.field=taq_num</xsl:text>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:text>&amp;facet.field=year_num</xsl:text>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:variable>
 
 				<xsl:variable name="service">
 					<xsl:choose>
 						<xsl:when test="string($lang)">
-							<xsl:value-of select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+lang:', $lang, '+AND+(mint_geo:*+OR+findspot_geo:*+OR+subject_geo:*)&amp;start=', $start, $facets, '&amp;facet.field=mint_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true&amp;rows=0')"/>
+							<xsl:value-of select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+lang:', $lang, '+AND+(mint_geo:*+OR+findspot_geo:*+OR+subject_geo:*+OR+productionPlace_geo:*+OR+hoard_geo:*+OR+issuePlace_geo:*)&amp;start=', $start, $facets, '&amp;facet.field=mint_geo&amp;facet.field=productionPlace_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true&amp;rows=0')"/>
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+NOT(lang:*)+AND+(mint_geo:*+OR+findspot_geo:*+OR+subject_geo:*)&amp;start=', $start, $facets, '&amp;facet.field=mint_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true&amp;rows=0')"/>
+							<xsl:value-of select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+NOT(lang:*)+AND+(mint_geo:*+OR+findspot_geo:*+OR+subject_geo:*+OR+productionPlace_geo:*+OR+hoard_geo:*+OR+issuePlace_geo:*)&amp;start=', $start, $facets, '&amp;facet.field=mint_geo&amp;facet.field=productionPlace_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true&amp;rows=0')"/>
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:variable>

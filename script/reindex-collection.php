@@ -13,11 +13,12 @@ define("SOLR_URL", 'http://localhost:8983/solr/numishare/update/');
 
 $eXist_config_path = '/usr/local/projects/numishare/exist-config.xml';
 $xquery = "<?xml version='1.0' encoding='utf-8'?>
-<exist:query xmlns:exist='http://exist.sourceforge.net/NS/exist'><exist:text>
+<exist:query xmlns:exist='http://exist.sourceforge.net/NS/exist' xmlns:xlink='http://www.w3.org/1999/xlink'><exist:text>
 <![CDATA[xquery version '1.0';
+declare namespace xlink = 'http://www.w3.org/1999/xlink';
 <report>
     {
-        for \$i in collection()[descendant::*[local-name() = 'publicationStatus'] = 'approved' or descendant::*[local-name() = 'publicationStatus'] = 'approvedSubtype']
+        for \$i in collection()[(descendant::*[local-name() = 'publicationStatus'] = 'approved' or descendant::*[local-name() = 'publicationStatus'] = 'approvedSubtype')]
         return 
             <id>
                 {data(\$i//*:recordId)}
@@ -49,6 +50,7 @@ if (isset($argv[1])){
         
         //echo $perPage;
         echo "Querying eXist-db to get a list of publishable IDs\n";
+        
         $ch=curl_init();
         curl_setopt($ch,CURLOPT_URL, $eXist_config->url . $collection);
         curl_setopt($ch,CURLOPT_POST,1);
@@ -57,10 +59,17 @@ if (isset($argv[1])){
         curl_setopt($ch,CURLOPT_POSTFIELDS, $xquery);
         curl_setopt($ch,CURLOPT_USERPWD,$eXist_config->username . ':' . $eXist_config->password);
         
-        $response = curl_exec($ch);        
-        echo "IDs received. Processing now.\n";
-        $list = simplexml_load_string($response);
+        $response = curl_exec($ch); 
+        
+        //write curl response to file
+        $fp = fopen('response.xml', 'w');
+        fwrite($fp, $response);
+        fclose($fp);        
         curl_close($ch);
+        
+        echo "IDs received. Processing now.\n";
+        $list = simplexml_load_file('response.xml');
+        
         
         $page = 1;
         foreach ($list->report->id as $id){
@@ -87,7 +96,8 @@ if (isset($argv[1])){
         
         //POST TO SOLR
         post_to_solr($toIndex, $eXist_config, $collection);
-       
+
+	unlink('response.xml')	
         
     } else {
         echo "eXist config not found at {$eXist_config_path}\n";

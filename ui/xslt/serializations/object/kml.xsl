@@ -116,9 +116,10 @@
 			<xsl:copy-of select="document($rdf_url)/rdf:RDF/*"/>
 
 			<xsl:if test="descendant::nuds:findspotDesc[contains(@xlink:href, 'coinhoards.org')]">
-				<xsl:copy-of
-					select="document(concat(descendant::nuds:findspotDesc/@xlink:href, '.rdf'))/rdf:RDF/*"
-				/>
+				<xsl:copy-of select="document(concat(descendant::nuds:findspotDesc/@xlink:href, '.rdf'))/rdf:RDF/*"/>
+			</xsl:if>
+			<xsl:if test="descendant::nuds:hoard[contains(@xlink:href, 'coinhoards.org') or contains(@xlink:href, 'numismatics.org')]">
+				<xsl:copy-of select="document(concat(descendant::nuds:hoard/@xlink:href, '.rdf'))/rdf:RDF/*"/>
 			</xsl:if>
 		</rdf:RDF>
 	</xsl:variable>
@@ -171,6 +172,15 @@
 						</Icon>
 					</IconStyle>
 				</Style>
+				<Style id="issuePlace">
+					<IconStyle>
+						<scale>1</scale>
+						<hotSpot x="0.5" y="0" xunits="fraction" yunits="fraction"/>
+						<Icon>
+							<href>https://maps.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png</href>
+						</Icon>
+					</IconStyle>
+				</Style>
 				<xsl:choose>
 					<xsl:when test="count(/content/*[local-name() = 'nuds']) &gt; 0">
 						<xsl:apply-templates select="/content/nuds:nuds"/>
@@ -186,15 +196,23 @@
 	<xsl:template match="nuds:nuds">
 		<!-- create mint points -->
 		<xsl:for-each
-			select="$nudsGroup/descendant::nuds:geogname[@xlink:role = 'mint'][string(@xlink:href)]">
+			select="$nudsGroup/descendant::nuds:geogname[@xlink:role = 'mint' or @xlink:role = 'productionPlace'][string(@xlink:href)]">
 			<xsl:call-template name="getPlacemark">
 				<xsl:with-param name="uri" select="@xlink:href"/>
 				<xsl:with-param name="styleUrl">#mint</xsl:with-param>
 			</xsl:call-template>
 		</xsl:for-each>
+		
+		<xsl:for-each
+			select="$nudsGroup/descendant::nuds:geogname[@xlink:role = 'issuePlace'][string(@xlink:href)]">
+			<xsl:call-template name="getPlacemark">
+				<xsl:with-param name="uri" select="@xlink:href"/>
+				<xsl:with-param name="styleUrl">#issuePlace</xsl:with-param>
+			</xsl:call-template>
+		</xsl:for-each>
 
 		<!-- create hoard/findspot points (for physical coins) -->
-		<xsl:for-each select="descendant::nuds:findspotDesc[string(@xlink:href)]">
+		<xsl:for-each select="descendant::nuds:findspotDesc[string(@xlink:href)]|descendant::nuds:hoard[string(@xlink:href)]">
 			<xsl:call-template name="getPlacemark">
 				<xsl:with-param name="uri" select="@xlink:href"/>
 				<xsl:with-param name="styleUrl">#hoard</xsl:with-param>

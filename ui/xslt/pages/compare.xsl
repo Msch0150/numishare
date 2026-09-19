@@ -29,6 +29,10 @@
 
 	<!-- load facets into variable -->
 	<xsl:variable name="facets" select="//lst[@name='facet_fields']"/>
+	
+	<!-- empty variables from search -->
+	<xsl:param name="q"/>
+	<xsl:variable name="tokenized_q"/>
 
 	<xsl:template match="/">
 		<html>
@@ -62,11 +66,9 @@
 				<script type="text/javascript" src="{$include_path}/javascript/search_functions.js"/>
 				<script type="text/javascript" src="{$include_path}/javascript/compare.js"/>
 				<script type="text/javascript" src="{$include_path}/javascript/compare_functions.js"/>
-				<xsl:if test="string(//config/google_analytics)">
-					<script type="text/javascript">
-						<xsl:value-of select="//config/google_analytics"/>
-					</script>
-				</xsl:if>
+				<xsl:call-template name="google_analytics">
+					<xsl:with-param name="id" select="//config/google_analytics_tag"/>
+				</xsl:call-template>
 			</head>
 			<body>
 				<xsl:call-template name="header"/>

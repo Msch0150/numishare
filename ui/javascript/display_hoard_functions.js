@@ -1,12 +1,20 @@
 /************************************
-Author: Ethan Gruber
-Last modified: April 2020
-Function: initiate functions on hoard page, incuding Leaflet maps and GeoJSON API call
+ Author: Ethan Gruber
+ Last modified: April 2020
+ Function: initiate functions on hoard page, incuding Leaflet maps and GeoJSON API call
  ************************************/
 $(document).ready(function () {
     var id = $('title').attr('id');
     var path = $('#path').text();
     var lang = $('#lang').text();
+    
+    //show and populate data links by javascript
+    $('a[path]').each(function () {
+        href = $(this).attr('path');
+        $(this).attr('href', href);
+        $(this).removeAttr('path');
+    });
+    $('.icons').removeClass('hidden')
     
     $('.toggle-coin').click(function () {
         var id = $(this).attr('id').split('-')[0];
@@ -52,6 +60,7 @@ function initialize_map(id, path, lang) {
     var map = new L.Map('mapcontainer', {
         center: new L.LatLng(0, 0),
         zoom: 4,
+        fullscreenControl: true,
         layers:[eval(baselayers[0])]
     });
     
@@ -69,7 +78,7 @@ function initialize_map(id, path, lang) {
             onEachFeature: onEachFeature,
             style: function (feature) {
                 if (feature.geometry.type == 'Polygon') {
-                    var fillColor = getFillColor(feature.properties.type);                    
+                    var fillColor = getFillColor(feature.properties.type);
                     
                     return {
                         color: fillColor
@@ -103,6 +112,13 @@ function initialize_map(id, path, lang) {
         }
         baseMaps[label] = eval(baselayers[i]);
     }
+    
+    L.control.Legend({
+        position: "bottomleft",
+        symbolWidth: 24,
+        symbolHeight: 24,
+        legends: JSON.parse($('#legend').text())
+    }).addTo(map);
     
     //add controls
     var layerControl = L.control.layers(baseMaps).addTo(map);

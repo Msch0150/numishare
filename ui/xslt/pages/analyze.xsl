@@ -48,6 +48,8 @@
 		<empty/>
 	</xsl:variable>
 	<xsl:variable name="id"/>
+	<xsl:param name="q"/>
+	<xsl:variable name="tokenized_q"/>
 
 	<!-- config variables -->
 	<xsl:variable name="url" select="//config/url"/>
@@ -85,7 +87,7 @@
 				
 				<!-- analysis scripts -->
 				<script type="text/javascript" src="{$include_path}/javascript/d3.min.js"/>
-				<script type="text/javascript" src="{$include_path}/javascript/d3plus-plot.min.js"/>
+				<script type="text/javascript" src="{$include_path}/javascript/d3plus-plot.full.min.js"/>
 				<script type="text/javascript" src="{$include_path}/javascript/hoard_analysis_functions.js"/>				
 				<script type="text/javascript" src="{$include_path}/javascript/search_functions.js"/>
 				
@@ -95,11 +97,9 @@
 				<link type="text/css" href="{$include_path}/css/style.css" rel="stylesheet"/>
 
 				<!-- google analytics -->
-				<xsl:if test="string(/config/google_analytics)">
-					<script type="text/javascript">
-						<xsl:value-of select="//config/google_analytics"/>
-					</script>
-				</xsl:if>
+				<xsl:call-template name="google_analytics">
+					<xsl:with-param name="id" select="//config/google_analytics_tag"/>
+				</xsl:call-template>
 			</head>
 			<body>
 				<xsl:call-template name="header"/>

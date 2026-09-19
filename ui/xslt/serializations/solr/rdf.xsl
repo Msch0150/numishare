@@ -6,7 +6,7 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:oa="http://www.w3.org/ns/oa#"
 	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:foaf="http://xmlns.com/foaf/0.1/"
 	xmlns:crm="http://www.cidoc-crm.org/cidoc-crm/" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:edm="http://www.europeana.eu/schemas/edm/"
-	xmlns:svcs="http://rdfs.org/sioc/services#" xmlns:doap="http://usefulinc.com/ns/doap#" version="2.0">
+	xmlns:svcs="http://rdfs.org/sioc/services#" xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:la="https://linked.art/ns/terms/" version="2.0">
 
 	<xsl:param name="mode" select="//lst[@name = 'params']/str[@name = 'mode']"/>
 	<xsl:param name="url" select="/content/config/url"/>
@@ -195,9 +195,32 @@
 			<dcterms:title xml:lang="{if (str[@name='lang']) then str[@name='lang'] else 'en'}">
 				<xsl:value-of select="str[@name = 'title_display']"/>
 			</dcterms:title>
-			<dcterms:identifier>
-				<xsl:value-of select="$id"/>
-			</dcterms:identifier>
+			
+			<xsl:choose>
+				<xsl:when test="str[@name = 'identifier_display']">
+					<dcterms:identifier>
+						<xsl:value-of select="str[@name = 'identifier_display']"/>
+					</dcterms:identifier>
+				</xsl:when>
+				<xsl:otherwise>
+					<dcterms:identifier>
+						<xsl:value-of select="$id"/>
+					</dcterms:identifier>
+				</xsl:otherwise>
+			</xsl:choose>
+			
+			<xsl:if test="str[@name = 'lot_display']">
+				<la:member_of>
+					<xsl:value-of select="str[@name = 'lot_display']"/>
+				</la:member_of>
+			</xsl:if>
+			
+			<xsl:if test="arr[@name = 'homepage_uri']">
+				<xsl:for-each select="arr[@name = 'homepage_uri']/str">
+					<foaf:homepage rdf:resource="{replace(., '\|', '%7C')}"/>
+				</xsl:for-each>
+			</xsl:if>			
+			
 			<xsl:for-each select="arr[@name = 'collection_uri']/str">
 				<nmo:hasCollection rdf:resource="{.}"/>
 			</xsl:for-each>
@@ -208,11 +231,12 @@
 						<dcterms:tableOfContents rdf:resource="{concat($url, 'id/', $id, '#contents')}"/>
 					</xsl:when>
 					<xsl:otherwise>
-						<xsl:for-each select="arr[@name = 'coinType_uri']/str">
-							<xsl:if test="not(contains(., 'sc.2.'))">
+						
+						<xsl:if test="not(str[@name = 'typeUncertain'] = 'true')">
+							<xsl:for-each select="arr[@name = 'coinType_uri']/str">
 								<nmo:hasTypeSeriesItem rdf:resource="{.}"/>
-							</xsl:if>
-						</xsl:for-each>
+							</xsl:for-each>
+						</xsl:if>
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:if>

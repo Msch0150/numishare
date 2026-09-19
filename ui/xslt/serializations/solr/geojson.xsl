@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Author: Ethan Gruber
-	Date modified: April 2020
+	Date modified: May 2024
 	Function: serialize Solr results for geographic docs into GeoJSON -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" exclude-result-prefixes="xs" version="2.0">
 	<xsl:include href="../json/json-metamodel.xsl"/>
@@ -130,16 +130,9 @@
 				<properties>
 					<_object>
 						<name>
-							<xsl:value-of select="$value"/>
+							<xsl:value-of select="str[@name='title_display']"/>							
 						</name>
 						<uri>
-							<xsl:value-of select="$uri"/>
-						</uri>
-						<type>hoard</type>
-						<objectTitle>
-							<xsl:value-of select="str[@name='title_display']"/>
-						</objectTitle>
-						<objectURI>
 							<xsl:value-of
 								select="
 								if (//config/uri_space) then
@@ -147,7 +140,14 @@
 								else
 								concat($url, 'id/', str[@name = 'recordId'])"
 							/>
-						</objectURI>
+						</uri>
+						<toponym>
+							<xsl:value-of select="$value"/>
+						</toponym>
+						<gazetteer_uri>
+							<xsl:value-of select="$uri"/>
+						</gazetteer_uri>
+						<type>hoard</type>						
 						<xsl:if test="str[@name = 'closing_date_display']">
 							<closing_date>
 								<xsl:value-of select="str[@name = 'closing_date_display']"/>
@@ -210,8 +210,8 @@
 	</xsl:template>
 
 	<xsl:template match="doc" mode="query">
-		<xsl:variable name="lat" select="normalize-space(substring-after(tokenize(arr[@name = 'mint_geo']/str[1], '\|')[3], ','))"/>
-		<xsl:variable name="long" select="normalize-space(substring-before(tokenize(arr[@name = 'mint_geo']/str[1], '\|')[3], ','))"/>
+		<xsl:variable name="lat" select="if (arr[@name = 'productionPlace_geo']) then normalize-space(substring-after(tokenize(arr[@name = 'productionPlace_geo']/str[1], '\|')[3], ',')) else normalize-space(substring-after(tokenize(arr[@name = 'mint_geo']/str[1], '\|')[3], ','))"/>
+		<xsl:variable name="long" select="if (arr[@name = 'productionPlace_geo']) then normalize-space(substring-before(tokenize(arr[@name = 'productionPlace_geo']/str[1], '\|')[3], ',')) else normalize-space(substring-before(tokenize(arr[@name = 'mint_geo']/str[1], '\|')[3], ','))"/>
 		<xsl:if test="number($lat) and number($long)">
 			
 			<_object>

@@ -17,7 +17,7 @@
 	xmlns:crmarchaeo="http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/"
 	xmlns:crm="http://www.cidoc-crm.org/cidoc-crm/"
 	xmlns:numishare="https://github.com/ewg118/numishare" xmlns:foaf="http://xmlns.com/foaf/0.1/"
-	xmlns:mets="http://www.loc.gov/METS/" xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	xmlns:mets="http://www.loc.gov/METS/" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:la="https://linked.art/ns/terms/"
 	exclude-result-prefixes="xsl xs nuds nh xlink numishare mets gml tei" version="2.0">
 
 	<!-- ************** PELAGIOS TEMPLATES **************** -->
@@ -343,6 +343,12 @@
 										select="nuds:descMeta/nuds:adminDesc/nuds:identifier"/>
 								</dcterms:identifier>
 							</xsl:if>
+							<xsl:if test="nuds:descMeta/nuds:adminDesc/nuds:lot">
+								<la:member_of>
+									<xsl:value-of
+										select="nuds:descMeta/nuds:adminDesc/nuds:lot"/>
+								</la:member_of>
+							</xsl:if>
 							<xsl:for-each select="descendant::nuds:collection">
 								<nmo:hasCollection>
 									<xsl:choose>
@@ -359,7 +365,7 @@
 
 							<!-- type series items -->
 							<xsl:for-each
-								select="distinct-values(nuds:descMeta/nuds:typeDesc[not(@certainty)]/@xlink:href | descendant::nuds:reference[@xlink:arcrole = 'nmo:hasTypeSeriesItem'][@xlink:href][not(@certainty)]/@xlink:href)">
+								select="distinct-values(nuds:descMeta/nuds:typeDesc[not(@certainty) and not(@variant)]/@xlink:href | descendant::nuds:reference[@xlink:arcrole = 'nmo:hasTypeSeriesItem'][@xlink:href][not(@certainty) and not(@variant)]/@xlink:href)">
 								<nmo:hasTypeSeriesItem rdf:resource="{.}"/>
 							</xsl:for-each>
 
@@ -698,16 +704,25 @@
 	</xsl:template>
 
 	<xsl:template
-		match="nuds:material | nuds:denomination | nuds:manufacture | nuds:geogname | nuds:persname | nuds:corpname | nuds:shape"
+		match="nuds:material | nuds:denomination | nuds:manufacture | nuds:geogname | nuds:persname | nuds:corpname | nuds:famname | nuds:shape"
 		mode="nomisma">
 		<xsl:variable name="href" select="@xlink:href"/>
 
 		<xsl:variable name="element">
 			<xsl:choose>
-				<xsl:when test="parent::nuds:obverse or parent::nuds:reverse">hasPortrait</xsl:when>
+				<xsl:when test="parent::nuds:obverse or parent::nuds:reverse">nmo:hasPortrait</xsl:when>
+				<xsl:when test="self::nuds:famname">nmo:hasAuthority</xsl:when>
 				<!-- ignore maker and artist -->
-				<xsl:when test="@xlink:role = 'artist' or @xlink:role = 'maker'"/>
-				<xsl:when test="@xlink:role = 'ruler'">hasAuthority</xsl:when>
+				
+				<xsl:when test="@xlink:role = 'artist' or @xlink:role = 'maker' or @xlink:role = 'designer' or @xlink:role = 'copyist' or @xlink:role = 'castBy' or @xlink:role = 'engraver' or @xlink:role = 'modeler' or @xlink:role = 'sculptor'">
+					<xsl:choose>
+						<xsl:when test="@xlink:arcrole">
+							<xsl:value-of select="@xlink:arcrole"/>
+						</xsl:when>
+						<xsl:otherwise>crm:P14_carried_out_by</xsl:otherwise>
+					</xsl:choose>
+				</xsl:when>
+				<xsl:when test="@xlink:role = 'ruler'">nmo:hasAuthority</xsl:when>
 				<xsl:otherwise>
 					<xsl:variable name="role" select="
 							if (@xlink:role) then
@@ -715,7 +730,7 @@
 							else
 								local-name()"/>
 					<xsl:value-of
-						select="concat('has', concat(upper-case(substring($role, 1, 1)), substring($role, 2)))"
+						select="concat('nmo:has', concat(upper-case(substring($role, 1, 1)), substring($role, 2)))"
 					/>
 				</xsl:otherwise>
 			</xsl:choose>
@@ -725,7 +740,7 @@
 			<xsl:choose>
 				<xsl:when
 					test="@certainty = 'uncertain' or matches(@certainty, 'https?://nomisma\.org')">
-					<xsl:element name="nmo:{$element}">
+					<xsl:element name="{$element}">
 						<rdf:Description>
 							<rdf:value rdf:resource="{@xlink:href}"/>
 							<un:hasUncertainty>
@@ -743,7 +758,7 @@
 					</xsl:element>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:element name="nmo:{$element}">
+					<xsl:element name="{$element}">
 						<xsl:attribute name="rdf:resource" select="@xlink:href"/>
 					</xsl:element>
 				</xsl:otherwise>
@@ -921,7 +936,7 @@
 						rdf:about="{if (string($uri_space)) then concat($uri_space, $id) else concat($url, 'id/', $id)}#contents">
 
 						<xsl:for-each
-							select="descendant::nuds:typeDesc/@xlink:href | descendant::nuds:undertypeDesc/@xlink:href">
+							select="descendant::nuds:typeDesc/@xlink:href | descendant::nuds:undertypeDesc/@xlink:href | descendant::nuds:reference[@xlink:arcrole = 'nmo:hasTypeSeriesItem']/@xlink:href">
 							<nmo:hasTypeSeriesItem rdf:resource="{.}"/>
 						</xsl:for-each>
 
@@ -929,7 +944,7 @@
 							<nodes>
 								<xsl:for-each select="
 										descendant::nuds:material[@xlink:href] | descendant::nuds:denomination[@xlink:href] | descendant::nuds:manufacture[@xlink:href] |
-										descendant::nuds:geogname[@xlink:href] | descendant::nuds:persname[@xlink:href] | descendant::nuds:corpname[@xlink:href]">
+										descendant::nuds:geogname[@xlink:href] | descendant::nuds:persname[@xlink:href] | descendant::nuds:corpname[@xlink:href] | descendant::nuds:famname[@xlink:href]">
 									<xsl:sort select="@xlink:href"/>
 
 									<xsl:copy-of select="."/>
@@ -1045,7 +1060,7 @@
 	</xsl:template>
 
 	<xsl:template match="nh:fallsWithin">
-		<xsl:apply-templates select="nh:geogname[@xlink:href]" mode="fallsWithin"/>
+		<xsl:apply-templates select="nh:geogname[@xlink:href][@xlink:role = 'findspot']" mode="fallsWithin"/>
 	</xsl:template>
 
 	<xsl:template match="nh:geogname" mode="fallsWithin">
@@ -1358,31 +1373,60 @@
 		<xsl:variable name="all-dates" as="element()*">
 			<dates>
 				<xsl:for-each select="descendant::nuds:typeDesc">
-					<xsl:if
-						test="index-of(//config/certainty_codes/code[@accept = 'true'], @certainty)">
-						<xsl:choose>
-							<xsl:when test="string(@xlink:href)">
-								<xsl:variable name="href" select="@xlink:href"/>
-								<xsl:for-each
-									select="$nudsGroup//object[@xlink:href = $href]/descendant::*/@standardDate">
-									<xsl:if test="number(.)">
-										<date>
-											<xsl:value-of select="number(.)"/>
-										</date>
-									</xsl:if>
-								</xsl:for-each>
-							</xsl:when>
-							<xsl:otherwise>
-								<xsl:for-each select="descendant::*/@standardDate">
-									<xsl:if test="number(.)">
-										<date>
-											<xsl:value-of select="number(.)"/>
-										</date>
-									</xsl:if>
-								</xsl:for-each>
-							</xsl:otherwise>
-						</xsl:choose>
-					</xsl:if>
+					<xsl:choose>
+						<xsl:when test="@certainty">
+							<xsl:if
+								test="index-of(//config/certainty_codes/code[@accept = 'true'], @certainty)">
+								<xsl:choose>
+									<xsl:when test="string(@xlink:href)">
+										<xsl:variable name="href" select="@xlink:href"/>
+										<xsl:for-each
+											select="$nudsGroup//object[@xlink:href = $href]/descendant::*/@standardDate">
+											<xsl:if test="number(.)">
+												<date>
+													<xsl:value-of select="number(.)"/>
+												</date>
+											</xsl:if>
+										</xsl:for-each>
+									</xsl:when>
+									<xsl:otherwise>
+										<xsl:for-each select="descendant::*/@standardDate">
+											<xsl:if test="number(.)">
+												<date>
+													<xsl:value-of select="number(.)"/>
+												</date>
+											</xsl:if>
+										</xsl:for-each>
+									</xsl:otherwise>
+								</xsl:choose>
+							</xsl:if>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:choose>
+								<xsl:when test="string(@xlink:href)">
+									<xsl:variable name="href" select="@xlink:href"/>
+									<xsl:for-each
+										select="$nudsGroup//object[@xlink:href = $href]/descendant::*/@standardDate">
+										<xsl:if test="number(.)">
+											<date>
+												<xsl:value-of select="number(.)"/>
+											</date>
+										</xsl:if>
+									</xsl:for-each>
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:for-each select="descendant::*/@standardDate">
+										<xsl:if test="number(.)">
+											<date>
+												<xsl:value-of select="number(.)"/>
+											</date>
+										</xsl:if>
+									</xsl:for-each>
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:otherwise>
+					</xsl:choose>
+					
 				</xsl:for-each>
 			</dates>
 		</xsl:variable>

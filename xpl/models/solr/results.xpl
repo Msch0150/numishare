@@ -99,11 +99,11 @@
 						<xsl:when test="/config/collection_type = 'hoard'"
 							>id,recordId,recordType,title_display,findspot_display,closing_date_display,deposit_display,discovery_display,description_display,reference_facet</xsl:when>
 						<xsl:when test="/config/collection_type = 'cointype'"
-							>id,recordId,recordType,title_display,date_display,denomination_facet,mint_facet,productionPlace_facet,obv_leg_display,obv_type_display,rev_leg_display,rev_type_display,reference_facet,uri_space</xsl:when>
+							>id,recordId,recordType,title_display,date_display,denomination_facet,mint_facet,productionPlace_facet,issuePlace_facet,obv_leg_display,obv_type_display,rev_leg_display,rev_type_display,reference_facet,uri_space</xsl:when>
 						<xsl:when test="/config/collection_type = 'die'"
 							>id,recordId,recordType,title_display,date_display,reference_facet,relatedType_facet,symbol_facet,uri_space</xsl:when>
 						<xsl:when test="/config/collection_type = 'object'"
-							>id,recordId,recordType,title_display,date_display,denomination_facet,mint_facet,productionPlace_facet,obv_leg_display,obv_type_display,rev_leg_display,rev_type_display,reference_facet,provenance_facet,diameter_num,weight_num,imagesavailable,reference_obv,reference_rev,thumbnail_obv,thumbnail_rev,reference_com,thumbnail_com</xsl:when>
+							>id,recordId,recordType,title_display,date_display,denomination_facet,mint_facet,productionPlace_facet,issuePlace_facet,obv_leg_display,obv_type_display,rev_leg_display,rev_type_display,reference_facet,provenance_facet,diameter_num,weight_num,imagesavailable,reference_obv,reference_rev,thumbnail_obv,thumbnail_rev,reference_com,thumbnail_com</xsl:when>
 					</xsl:choose>
 					<xsl:if test="string($sort)">
 						<xsl:text>,</xsl:text>
@@ -120,12 +120,12 @@
 									<xsl:choose>
 										<xsl:when test="string($sort)">
 											<xsl:value-of
-												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+lang:', $lang, '+AND+', encode-for-uri($q), '&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true', '&amp;sort=', encode-for-uri($sort), '&amp;fl=', $fl)"
+												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+lang:', $lang, '+AND+', encode-for-uri($q), '&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=productionPlace_geo&amp;facet.field=hoard_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true', '&amp;sort=', encode-for-uri($sort), '&amp;fl=', $fl)"
 											/>
 										</xsl:when>
 										<xsl:otherwise>
 											<xsl:value-of
-												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+lang:', $lang, '+AND+', encode-for-uri($q), '&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true&amp;sort=sortid+asc,+score+desc&amp;fl=', $fl)"
+												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+lang:', $lang, '+AND+', encode-for-uri($q), '&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=productionPlace_geo&amp;facet.field=hoard_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true&amp;sort=sortid+asc,+score+desc&amp;fl=', $fl)"
 											/>
 										</xsl:otherwise>
 									</xsl:choose>
@@ -134,12 +134,12 @@
 									<xsl:choose>
 										<xsl:when test="string($sort)">
 											<xsl:value-of
-												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+NOT(lang:*)+AND+', encode-for-uri($q), '&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true', '&amp;sort=', encode-for-uri($sort), '&amp;fl=', $fl)"
+												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+NOT(lang:*)+AND+', encode-for-uri($q), '&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=productionPlace_geo&amp;facet.field=hoard_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true', '&amp;sort=', encode-for-uri($sort), '&amp;fl=', $fl)"
 											/>
 										</xsl:when>
 										<xsl:otherwise>
 											<xsl:value-of
-												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+NOT(lang:*)+AND+', encode-for-uri($q), '&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true&amp;sort=sortid+asc,+score+desc&amp;fl=', $fl)"
+												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+NOT(lang:*)+AND+', encode-for-uri($q), '&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=productionPlace_geo&amp;facet.field=hoard_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true&amp;sort=sortid+asc,+score+desc&amp;fl=', $fl)"
 											/>
 										</xsl:otherwise>
 									</xsl:choose>
@@ -152,12 +152,12 @@
 									<xsl:choose>
 										<xsl:when test="string($sort)">
 											<xsl:value-of
-												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+lang:', $lang, '+AND+*:*&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true', '&amp;sort=', encode-for-uri($sort), '&amp;fl=', $fl)"
+												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+lang:', $lang, '+AND+*:*&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=productionPlace_geo&amp;facet.field=hoard_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true', '&amp;sort=', encode-for-uri($sort), '&amp;fl=', $fl)"
 											/>
 										</xsl:when>
 										<xsl:otherwise>
 											<xsl:value-of
-												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+lang:', $lang, '+AND+*:*&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true&amp;sort=sortid+asc,+score+desc&amp;fl=', $fl)"
+												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+lang:', $lang, '+AND+*:*&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=productionPlace_geo&amp;facet.field=hoard_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true&amp;sort=sortid+asc,+score+desc&amp;fl=', $fl)"
 											/>
 										</xsl:otherwise>
 									</xsl:choose>
@@ -166,12 +166,12 @@
 									<xsl:choose>
 										<xsl:when test="string($sort)">
 											<xsl:value-of
-												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+NOT(lang:*)+AND+*:*&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true', '&amp;sort=', encode-for-uri($sort), '&amp;fl=', $fl)"
+												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+NOT(lang:*)+AND+*:*&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=productionPlace_geo&amp;facet.field=hoard_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true', '&amp;sort=', encode-for-uri($sort), '&amp;fl=', $fl)"
 											/>
 										</xsl:when>
 										<xsl:otherwise>
 											<xsl:value-of
-												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+NOT(lang:*)+AND+*:*&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true&amp;sort=sortid+asc,+score+desc&amp;fl=', $fl)"
+												select="concat($solr-url, '?q=collection-name:', $collection-name, '+AND+NOT(lang:*)+AND+*:*&amp;start=', $start, '&amp;rows=', $rows, $facets, '&amp;facet.field=mint_geo&amp;facet.field=productionPlace_geo&amp;facet.field=hoard_geo&amp;facet.field=findspot_geo&amp;facet.limit=1&amp;facet.sort=index&amp;facet=true&amp;sort=sortid+asc,+score+desc&amp;fl=', $fl)"
 											/>
 										</xsl:otherwise>
 									</xsl:choose>

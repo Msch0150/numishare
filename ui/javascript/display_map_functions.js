@@ -1,7 +1,7 @@
 /***
-Author: Ethan Gruber
-Date: June 2021
-Function: Generate a Leaflet map for a specimen/type/symbol page and call the relevant GeoJSON serialization
+ Author: Ethan Gruber
+ Date: June 2021
+ Function: Generate a Leaflet map for a specimen/type/symbol page and call the relevant GeoJSON serialization
  ***/
 $(document).ready(function () {
     var id = $('title').attr('id');
@@ -16,6 +16,12 @@ $(document).ready(function () {
 function initialize_map(id, path, lang) {
     var baselayers = $('#baselayers').text().split(',');
     var mapboxKey = $('#mapboxKey').text();
+    
+    //update the protocol if the location URL is https but the path is http
+    if (location.protocol == 'https:' && path.includes('http://')) {
+        path = path.replace('http://', 'https://');        
+    }
+    
     var url = path + id + ".geojson" + (lang.length > 0 ? '?lang=' + lang: '');
     
     //baselayers
@@ -40,6 +46,7 @@ function initialize_map(id, path, lang) {
     var map = new L.Map('mapcontainer', {
         center: new L.LatLng(0, 0),
         zoom: 4,
+        fullscreenControl: true,
         layers:[eval(baselayers[0])]
     });
     
@@ -99,6 +106,13 @@ function initialize_map(id, path, lang) {
         }
         baseMaps[label] = eval(baselayers[i]);
     }
+    
+    L.control.Legend({
+        position: "bottomleft",
+        symbolWidth: 24,
+        symbolHeight: 24,
+        legends: JSON.parse($('#legend').text())
+    }).addTo(map);
     
     //add controls
     var layerControl = L.control.layers(baseMaps).addTo(map);
@@ -182,6 +196,7 @@ function initialize_map(id, path, lang) {
         var fillColor;
         switch (type) {
             case 'mint':
+            case 'productionPlace':
             fillColor = '#6992fd';
             break;
             case 'findspot':
@@ -191,7 +206,8 @@ function initialize_map(id, path, lang) {
             fillColor = '#d86458';
             break;
             case 'subject':
-            fillColor = '#00e64d';
+            case 'issuePlace':
+            fillColor = '#a1d490';
             break;
             default:
             fillColor = '#efefef'

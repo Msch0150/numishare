@@ -218,7 +218,7 @@
                     <xsl:when test="$label = 'grade'">Grad</xsl:when>
                     <xsl:when test="$label = 'height'">Höhe</xsl:when>
                     <xsl:when test="$label = 'hoardDesc'">Schatzfundbeschreibung</xsl:when>
-                    <xsl:when test="$label = 'identifier'">Inventarnummer</xsl:when>
+                    <xsl:when test="$label = 'identifier'">Id-Nummer</xsl:when>
                     <xsl:when test="$label = 'issuer'">Herausgeber</xsl:when>
                     <xsl:when test="$label = 'landowner'">Grundstückseigentümer</xsl:when>
                     <xsl:when test="$label = 'legend'">Legende</xsl:when>
@@ -2041,6 +2041,8 @@
                     <xsl:when test="$label = 'acquisition'">Acquisition</xsl:when>
                     <xsl:when test="$label = 'acquiredFrom'">Acquired From</xsl:when>
                     <xsl:when test="$label = 'adminDesc'">Administrative History</xsl:when>
+                    <xsl:when test="$label = 'ah'">Hijra</xsl:when>
+                    <xsl:when test="$label = 'ancient_place'">Ancient Place</xsl:when>
                     <xsl:when test="$label = 'appraisal'">Appraisal</xsl:when>
                     <xsl:when test="$label = 'appraiser'">Appraiser</xsl:when>
                     <xsl:when test="$label = 'area'">Excavation Test / Area</xsl:when>
@@ -2088,8 +2090,10 @@
                     <xsl:when test="$label = 'editorResponsible'">Responsible Official</xsl:when>
                     <xsl:when test="$label = 'edge'">Edge</xsl:when>
                     <xsl:when test="$label = 'era'">Era</xsl:when>
+                    <xsl:when test="$label = 'excavation'">Excavation</xsl:when>
                     <xsl:when test="$label = 'finder'">Finder</xsl:when>
                     <xsl:when test="$label = 'findspot'">Findspot</xsl:when>
+                    <xsl:when test="$label = 'findspot_type'">Findspot Type</xsl:when>
                     <xsl:when test="$label = 'findspotDesc'">Findspot Description</xsl:when>
                     <xsl:when test="$label = 'fromDate'">From Date</xsl:when>
                     <xsl:when test="$label = 'geographic'">Geographic</xsl:when>
@@ -2100,12 +2104,14 @@
                     <xsl:when test="$label = 'identifier'">Identifier</xsl:when>
                     <xsl:when test="$label = 'intendedUsage'">Intended Usage</xsl:when>
                     <xsl:when test="$label = 'issuer'">Issuer</xsl:when>
+                    <xsl:when test="$label = 'issuePlace'">Place of Issue</xsl:when>
                     <xsl:when test="$label = 'landowner'">Landowner</xsl:when>
                     <xsl:when test="$label = 'legend'">Legend</xsl:when>
                     <xsl:when test="$label = 'manufacture'">Manufacture</xsl:when>
                     <xsl:when test="$label = 'material'">Material</xsl:when>
                     <xsl:when test="$label = 'measurementsSet'">Measurements</xsl:when>
                     <xsl:when test="$label = 'mint'">Mint</xsl:when>
+                    <xsl:when test="$label = 'namedEntity'">Named Entity</xsl:when>
                     <xsl:when test="$label = 'note'">Note</xsl:when>
                     <xsl:when test="$label = 'noteSet'">Notes</xsl:when>
                     <xsl:when test="$label = 'objectType'">Object Type</xsl:when>
@@ -2120,13 +2126,15 @@
                     <xsl:when test="$label = 'principalInvestigator'">Principal
                         Investigator</xsl:when>
                     <xsl:when test="$label = 'private'">Private</xsl:when>
-                    <xsl:when test="$label = 'projectName'">Project Name</xsl:when>
+                    <xsl:when test="$label = 'productionPlace'">Place of Production</xsl:when>                    
+                    <xsl:when test="$label = 'projectName'">Excavation</xsl:when>
                     <xsl:when test="$label = 'provenance'">Provenance</xsl:when>
                     <xsl:when test="$label = 'public'">Public</xsl:when>
                     <xsl:when test="$label = 'publisher'">Publisher</xsl:when>
                     <xsl:when test="$label = 'reference'">Reference</xsl:when>
                     <xsl:when test="$label = 'refDesc'">References</xsl:when>
                     <xsl:when test="$label = 'region'">Region</xsl:when>
+                    <xsl:when test="$label = 'relatedPlace'">Place of Cataloging Relevance</xsl:when>
                     <xsl:when test="$label = 'repository'">Repository</xsl:when>
                     <xsl:when test="$label = 'reverse'">Reverse</xsl:when>
                     <xsl:when test="$label = 'rev_leg'">Reverse Legend</xsl:when>
@@ -2143,6 +2151,10 @@
                     <xsl:when test="$label = 'statedAuthority'">Stated Authority</xsl:when>
                     <xsl:when test="$label = 'stratigraphicUnit'">Stratigraphic Unit</xsl:when>
                     <xsl:when test="$label = 'subject'">Subject</xsl:when>
+                    <xsl:when test="$label = 'subjectEvent'">Subject: Event</xsl:when>
+                    <xsl:when test="$label = 'subjectIssuer'">Subject: Issuer</xsl:when>
+                    <xsl:when test="$label = 'subjectPerson'">Subject: Person</xsl:when>
+                    <xsl:when test="$label = 'subjectPlace'">Subject: Place</xsl:when>
                     <xsl:when test="$label = 'subjectSet'">Subjects</xsl:when>
                     <xsl:when test="$label = 'symbol'">Symbol</xsl:when>
                     <xsl:when test="$label = 'taq'">Terminus Ante Quem</xsl:when>
@@ -2157,7 +2169,7 @@
                     <xsl:when test="$label = 'thickness'">Thickness (in mm)</xsl:when>
                     <xsl:when test="$label = 'undertypeDesc'">Undertype Description</xsl:when>
                     <xsl:when test="$label = 'wear'">Wear</xsl:when>
-                    <xsl:when test="$label = 'weight'">Weight (in gr.)</xsl:when>
+                    <xsl:when test="$label = 'weight'">Weight (in g)</xsl:when>
                     <xsl:when test="$label = 'width'">Width</xsl:when>
                     <xsl:when test="$label = 'year'">Year</xsl:when>
                     <xsl:otherwise>
@@ -2388,7 +2400,7 @@
                     <xsl:when test="$label = 'header_search'">Suchen</xsl:when>
                     <xsl:when test="$label = 'header_maps'">Karten</xsl:when>
                     <xsl:when test="$label = 'header_compare'">Vergleichen</xsl:when>
-                    <xsl:when test="$label = 'header_contributors'">Beitragende</xsl:when>
+                    <xsl:when test="$label = 'header_contributors'">Beiträger</xsl:when>
                     <xsl:when test="$label = 'header_language'">Sprache</xsl:when>
                     <xsl:when test="$label = 'header_analyze'">Hortfunde analysieren</xsl:when>
                     <xsl:when test="$label = 'header_visualize'">Anfragen visualisieren</xsl:when>
@@ -5133,6 +5145,7 @@
                         CSV for the given query and selected hoards</xsl:when>
                     <xsl:when test="$label = 'visualize_select_measurement'">Select
                         Measurement</xsl:when>
+                    <xsl:when test="$label = 'visualize_response_type'">Numerical Response Type</xsl:when>
                     <xsl:when test="$label = 'visualize_chart_type'">Select Chart Type</xsl:when>
                     <xsl:when test="$label = 'visualize_categories'">Select Categories for
                         Analysis</xsl:when>
@@ -5608,11 +5621,18 @@
                     <xsl:when test="$element = 'dcterms:creator'">Creator</xsl:when>
                     <xsl:when test="$element = 'dcterms:format'">Media Type</xsl:when>
                     <xsl:when test="$element = 'dcterms:isPartOf'">Field of Numismatics</xsl:when>
+                    <xsl:when test="$element = 'dcterms:isReplacedBy'">Replaced By</xsl:when>
                     <xsl:when test="$element = 'dcterms:license'">License</xsl:when>
                     <xsl:when test="$element = 'dcterms:source'">Source</xsl:when>
-                    <xsl:when test="$element = 'skos:broader'">Broader Concept</xsl:when>
+                    <xsl:when test="$element = 'skos:broader'">Broader Concept</xsl:when>                    
                     <xsl:when test="$element = 'skos:definition'">Definition</xsl:when>
+                    <xsl:when test="$element = 'skos:exactMatch'">Exact Match</xsl:when>
                     <xsl:when test="$element = 'skos:prefLabel'">Preferred Label</xsl:when>
+                    
+                    <!-- attribution qualifiers -->
+                    <xsl:when test="$element = 'http://vocab.getty.edu/aat/300404269'">attributed to</xsl:when>
+                    <xsl:when test="$element = 'http://vocab.getty.edu/aat/300404282'">follower of</xsl:when>
+                    <xsl:when test="$element = 'http://vocab.getty.edu/aat/300404285'">style of</xsl:when>
                 </xsl:choose>
             </xsl:when>
         </xsl:choose>
